@@ -1,101 +1,137 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import { useState, useEffect } from 'react';
+import Link from 'next/link'; 
+
+export default function HomePage() {
+  const [cars, setCars] = useState([]);
+  const [filters, setFilters] = useState({
+    minPrice: '',
+    maxPrice: '',
+    year: '',
+    model: '',
+    make: '',
+  });
+
+  const fetchCars = async () => {
+    try {
+      const params = new URLSearchParams(filters);
+      const res = await fetch(`/api/cars?${params.toString()}`);
+
+      if (!res.ok) {
+        console.error('Failed to fetch cars:', res.statusText);
+        return;
+      }
+
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        setCars(data);
+      } else {
+        console.error('Unexpected data format:', data);
+        setCars([]);
+      }
+    } catch (error) {
+      console.error('Error fetching cars:', error);
+      setCars([]);
+    }
+  };
+
+  useEffect(() => {
+    fetchCars();
+  }, [filters]);
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.js
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    <div className="max-w-6xl mx-auto p-6">
+      {/* Header with Logo and Navigation */}
+      <header className="flex items-center justify-between mb-6">
+  <div className="flex items-center space-x-4">
+    {/* Speedlot Logo */}
+    <img
+      src="/logo.jpg"
+      alt="Speedlot Logo"
+      className="h-12"
+    />
+    <h1 className="text-3xl font-bold	text-red-500">Speedlot</h1>
+  </div>
+  {/* Navigation Buttons */}
+  <nav className="flex space-x-4">
+    <Link
+      href="/post"
+      className="bg-red-500 text-black py-2 px-4 rounded-lg hover:bg-red-600"
+    >
+      Post Your Car
+    </Link>
+    <Link
+      href="/messages"
+      className="bg-red-500 text-black py-2 px-4 rounded-lg hover:bg-gray-600"
+    >
+      Messages
+    </Link>
+  </nav>
+</header>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+      {/* Filters Section */}
+      <form className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <input
+          type="number"
+          placeholder="Min Price"
+          value={filters.minPrice}
+          onChange={(e) => setFilters({ ...filters, minPrice: e.target.value })}
+          className="border border-gray-300 rounded-lg p-3 text-black"
+        />
+        <input
+          type="number"
+          placeholder="Max Price"
+          value={filters.maxPrice}
+          onChange={(e) => setFilters({ ...filters, maxPrice: e.target.value })}
+          className="border border-gray-300 rounded-lg p-3 text-black"
+        />
+        <input
+          type="number"
+          placeholder="Year"
+          value={filters.year}
+          onChange={(e) => setFilters({ ...filters, year: e.target.value })}
+          className="border border-gray-300 rounded-lg p-3 text-black"
+        />
+        <input
+          type="text"
+          placeholder="Make"
+          value={filters.make}
+          onChange={(e) => setFilters({ ...filters, make: e.target.value })}
+          className="border border-gray-300 rounded-lg p-3 text-black"
+        />
+        <input
+          type="text"
+          placeholder="Model"
+          value={filters.model}
+          onChange={(e) => setFilters({ ...filters, model: e.target.value })}
+          className="border border-gray-300 rounded-lg p-3 text-black"
+        />
+        <button
+          type="submit"
+          className="col-span-2 md:col-span-4 bg-red-500 text-black py-3 rounded-lg hover:bg-red-600"
+        >
+          Apply Filters
+        </button>
+      </form>
+
+      {/* Car Listings */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {cars.map((car) => (
+          <div key={car._id} className="p-4 bg-white rounded-lg shadow-md">
+            <img
+              src={car.imageUrl}
+              alt={car.title}
+              className="h-48 w-full object-cover rounded-lg mb-4"
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+            <h2 className="text-xl font-bold mb-2">{car.title}</h2>
+            <p className="text-gray-700 mb-2">${car.price}</p>
+            <p className="text-gray-500">
+              {car.year} - {car.make} {car.model}
+            </p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

@@ -1,4 +1,10 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {};
-
-export default nextConfig;
+const nextConfig = {
+    reactStrictMode: true,
+    env: {
+        CLOUDINARY_URL: process.env.CLOUDINARY_URL,
+      },
+  };
+  
+  export default nextConfig;
+  
